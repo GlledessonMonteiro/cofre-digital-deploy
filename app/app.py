@@ -1,15 +1,11 @@
-# app/app.py
-
-from flask import Flask, jsonify
+﻿from flask import Flask, jsonify
 import os
 import logging
 
 app = Flask(__name__)
 
-# Configurando logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
-
 
 @app.route('/')
 def home():
@@ -19,17 +15,14 @@ def home():
         "version": os.getenv('APP_VERSION', '1.0.0')
     })
 
-
 @app.route('/database')
 def database_info():
-    # Simulando conexão com banco (usando segredos)
     db_host = os.getenv('DB_HOST', 'localhost')
     db_user = os.getenv('DB_USER', 'user')
     db_password = os.getenv('DB_PASSWORD', 'SENHA_NAO_CONFIGURADA')
-
-    # Nunca logar senhas reais
+    
     logger.info(f"Conectando ao banco: {db_host} com usuário: {db_user}")
-
+    
     return jsonify({
         "status": "connected" if db_password != 'SENHA_NAO_CONFIGURADA' else "not_configured",
         "host": db_host,
@@ -37,25 +30,16 @@ def database_info():
         "password_configured": db_password != 'SENHA_NAO_CONFIGURADA'
     })
 
-
 @app.route('/api-key')
 def api_key_info():
-    # Simulando uso de API key externa
     api_key = os.getenv('EXTERNAL_API_KEY', 'KEY_NAO_CONFIGURADA')
-
-    # Mascarando chave nos logs
-    masked_key = (
-        api_key[:4] + "*" * (len(api_key) - 8) + api_key[-4:]
-        if len(api_key) > 8 else "****"
-    )
-
+    masked_key = api_key[:4] + "*" * (len(api_key) - 8) + api_key[-4:] if len(api_key) > 8 else "****"
     logger.info(f"Usando API Key: {masked_key}")
-
+    
     return jsonify({
         "api_configured": api_key != 'KEY_NAO_CONFIGURADA',
         "key_preview": masked_key
     })
-
 
 if __name__ == '__main__':
     port = int(os.getenv('PORT', 5000))
